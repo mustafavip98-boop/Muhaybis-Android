@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
-void main()=>runApp(const MuhaybisApp());
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  const supabaseKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+  if (supabaseUrl.isNotEmpty && supabaseKey.isNotEmpty) {
+    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+  }
+  runApp(const MuhaybisApp());
+}
 const gold=Color(0xFFD6AE68), ink=Color(0xFF0B0B0A), panel=Color(0xFF211C16);
 class MuhaybisApp extends StatelessWidget{const MuhaybisApp({super.key});@override Widget build(BuildContext c)=>MaterialApp(debugShowCheckedModeBanner:false,title:'المحيبس',theme:ThemeData(useMaterial3:true,brightness:Brightness.dark,scaffoldBackgroundColor:ink,colorScheme:ColorScheme.fromSeed(seedColor:gold,brightness:Brightness.dark)),home:const HomeScreen());}
 class HomeScreen extends StatefulWidget{const HomeScreen({super.key});@override State<HomeScreen> createState()=>_HomeScreenState();}
