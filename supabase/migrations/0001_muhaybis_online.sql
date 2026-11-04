@@ -47,17 +47,23 @@ alter table public.muhaybis_members enable row level security;
 alter table public.muhaybis_rounds enable row level security;
 alter table public.muhaybis_scores enable row level security;
 
+create or replace function public.muhaybis_is_member(p_room uuid)
+returns boolean language sql stable security definer set search_path=public
+as $ select exists(select 1 from public.muhaybis_members m where m.room_id=p_room and m.user_id=auth.uid()) $;
+revoke all on function public.muhaybis_is_member(uuid) from public;
+grant execute on function public.muhaybis_is_member(uuid) to authenticated;
+
 drop policy if exists room_members_can_read_room on public.muhaybis_rooms;
 create policy room_members_can_read_room on public.muhaybis_rooms for select to authenticated
-using (exists(select 1 from public.muhaybis_members m where m.room_id=id and m.user_id=auth.uid()));
+using (public.muhaybis_is_member(id));
 
 drop policy if exists members_can_read_room_members on public.muhaybis_members;
 create policy members_can_read_room_members on public.muhaybis_members for select to authenticated
-using (exists(select 1 from public.muhaybis_members mine where mine.room_id=room_id and mine.user_id=auth.uid()));
+using (public.muhaybis_is_member(room_id));
 
 drop policy if exists members_can_read_scores on public.muhaybis_scores;
 create policy members_can_read_scores on public.muhaybis_scores for select to authenticated
-using (exists(select 1 from public.muhaybis_members m where m.room_id=room_id and m.user_id=auth.uid()));
+using (public.muhaybis_is_member(room_id));
 
 -- Round table intentionally has no client SELECT policy: hidden_hand is secret.
 -- All mutations happen through security-definer RPCs.
