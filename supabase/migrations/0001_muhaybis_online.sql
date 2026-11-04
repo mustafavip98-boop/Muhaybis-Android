@@ -49,7 +49,7 @@ alter table public.muhaybis_scores enable row level security;
 
 create or replace function public.muhaybis_is_member(p_room uuid)
 returns boolean language sql stable security definer set search_path=public
-as $ select exists(select 1 from public.muhaybis_members m where m.room_id=p_room and m.user_id=auth.uid()) $;
+as $$ select exists(select 1 from public.muhaybis_members m where m.room_id=p_room and m.user_id=auth.uid()) $$;
 revoke all on function public.muhaybis_is_member(uuid) from public;
 grant execute on function public.muhaybis_is_member(uuid) to authenticated;
 
